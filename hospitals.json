@@ -1,0 +1,146 @@
+[
+  {
+    "id": 1,
+    "name": "Hôpital Général de Yaoundé",
+    "lat": 3.876,
+    "lon": 11.501,
+    "phone": "+237222310104",
+    "email": "contact@hgy.cm",
+    "address": "Quartier Ngousso, Yaoundé, Centre"
+  },
+  {
+    "id": 2,
+    "name": "Hôpital Central de Yaoundé",
+    "lat": 3.868,
+    "lon": 11.512,
+    "phone": "+237222234020",
+    "email": "info@hcy.cm",
+    "address": "Avenue Henry Dunant, Yaoundé, Centre"
+  },
+  {
+    "id": 3,
+    "name": "Centre Hospitalier et Universitaire (CHU) de Yaoundé",
+    "lat": 3.871,
+    "lon": 11.498,
+    "phone": "+237222222920",
+    "email": "chu.yaounde@sante.cm",
+    "address": "Melen, Yaoundé, Centre"
+  },
+  {
+    "id": 4,
+    "name": "Hôpital Général de Douala",
+    "lat": 4.053,
+    "lon": 9.758,
+    "phone": "+237233370250",
+    "email": "contact@hgd.cm",
+    "address": "Quartier Beedi, Douala, Littoral"
+  },
+  {
+    "id": 5,
+    "name": "Hôpital Laquintinie de Douala",
+    "lat": 4.049,
+    "lon": 9.704,
+    "phone": "+237233421540",
+    "email": "laquintinie@sante.cm",
+    "address": "Akwa, Douala, Littoral"
+  },
+  {
+    "id": 6,
+    "name": "Hôpital Gynéco-Obstétrique et Pédiatrique de Douala",
+    "lat": 4.075,
+    "lon": 9.771,
+    "phone": "+237233470980",
+    "email": "hgoped@sante.cm",
+    "address": "Yassa, Douala, Littoral"
+  },
+  {
+    "id": 7,
+    "name": "Hôpital Régional de Bafoussam",
+    "lat": 5.480,
+    "lon": 10.420,
+    "phone": "+237233441315",
+    "email": "hr.bafoussam@sante.cm",
+    "address": "Bafoussam, Ouest"
+  },
+  {
+    "id": 8,
+    "name": "Hôpital Régional de Bamenda",
+    "lat": 5.961,
+    "lon": 10.150,
+    "phone": "+237233361146",
+    "email": "hr.bamenda@sante.cm",
+    "address": "Bamenda, Nord-Ouest"
+  },
+  {
+    "id": 9,
+    "name": "Hôpital Régional de Buea",
+    "lat": 4.155,
+    "lon": 9.240,
+    "phone": "+237233322233",
+    "email": "hr.buea@sante.cm",
+    "address": "Buea, Sud-Ouest"
+  },
+  {
+    "id": 10,
+    "name": "Hôpital Régional de Limbe",
+    "lat": 4.024,
+    "lon": 9.214,
+    "phone": "+237233332252",
+    "email": "hr.limbe@sante.cm",
+    "address": "Limbe, Sud-Ouest"
+  },
+  {
+    "id": 11,
+    "name": "Hôpital Régional de Maroua",
+    "lat": 10.593,
+    "lon": 14.321,
+    "phone": "+237222291533",
+    "email": "hr.maroua@sante.cm",
+    "address": "Domayo, Maroua, Extrême-Nord"
+  },
+  {
+    "id": 12,
+    "name": "Hôpital Régional de Garoua",
+    "lat": 9.308,
+    "lon": 13.399,
+    "phone": "+237222271360",
+    "email": "hr.garoua@sante.cm",
+    "address": "Garoua, Nord"
+  },
+  {
+    "id": 13,
+    "name": "Hôpital de Référence de Sangmélima",
+    "lat": 2.934,
+    "lon": 11.980,
+    "phone": "+237222283737",
+    "email": "hopital.sangmelima@sante.cm",
+    "address": "Sangmélima, Sud"
+  },
+  {
+    "id": 14,
+    "name": "Hôpital Régional d'Ebolowa",
+    "lat": 2.901,
+    "lon": 11.152,
+    "phone": "+237222281488",
+    "email": "hr.ebolowa@sante.cm",
+    "address": "Ebolowa, Sud"
+  },
+  {
+    "id": 15,
+    "name": "Hôpital Régional de Ngaoundéré",
+    "lat": 7.320,
+    "lon": 13.583,
+    "phone": "+237222251313",
+    "email": "hr.ngaoundere@sante.cm",
+    "address": "Ngaoundéré, Adamaoua"
+  },
+  {
+    "id": 16,
+    "name": "Hôpital Régional de Bertoua",
+    "lat": 4.577,
+    "lon": 13.683,
+    "phone": "+237222241154",
+    "email": "hr.bertoua@sante.cm",
+    "address": "Bertoua, Est"
+  }
+]
