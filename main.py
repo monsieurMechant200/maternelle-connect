@@ -1,9 +1,8 @@
 from fastapi import FastAPI, HTTPException, Depends, Query
 from pydantic import BaseModel
 from typing import Optional, List
-import os, json, csv, io
+import csv, io
 
-from config import ADMIN_KEY
 from db import (
     get_patient, upsert_patient, save_message, get_recent_messages,
     save_alert, get_hospital_by_id, insert_pending_hospital, get_approved_hospitals,
@@ -17,10 +16,10 @@ from db import (
     save_admin_message, get_unread_admin_messages, mark_admin_message_read,
     get_weekly_tip, upsert_weekly_tip,
     get_all_faq, insert_faq, update_faq, delete_faq,
-    get_quiz_questions, insert_quiz_question, save_quiz_result,
+    get_quiz_questions, get_quiz_question_by_id, insert_quiz_question, save_quiz_result,
     get_admin_user, create_admin_user
 )
-from services.mistral_conversation import chat_with_mistral
+from services.mistral_conversation import chat_with_mistral, normalize_risk
 from services.geoloc import get_nearest_hospitals
 from services.alerting import send_email_alert
 from services.auth import verify_admin
@@ -141,7 +140,7 @@ async def api_chat(req: ChatRequest):
     save_message(phone, "assistant", reply)
 
     hospitals = []
-    if req.lat is not None and req.lon is not None and risk == "eleve":
+    if req.lat is not None and req.lon is not None and normalize_risk(risk) == "eleve":
         hospitals = get_nearest_hospitals(req.lat, req.lon, 3)
 
     return {"reply": reply, "risk": risk, "hospitals": hospitals}
@@ -155,7 +154,7 @@ async def api_alert(req: AlertRequest):
     patient = get_patient(req.phone)
     patient_name = patient["name"] if patient else "Patiente inconnue"
 
-    success = send_email_alert(
+    success = await send_email_alert(
         hospital_id=req.hospital_id,
         patient_name=patient_name,
         phone=req.phone,
@@ -177,11 +176,7 @@ def get_rules():
     db_rules = get_rules_from_db()
     if db_rules:
         return db_rules
-    try:
-        with open("rules.json", "r", encoding="utf-8") as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Règles non disponibles")
+    raise HTTPException(status_code=404, detail="Règles non disponibles")
 
 @app.post("/api/feedback")
 def submit_feedback(req: FeedbackRequest):
@@ -238,13 +233,8 @@ def get_quiz(limit: int = 5):
 
 @app.post("/api/quiz-answer")
 def submit_quiz_answer(req: QuizAnswerRequest):
-    # Vérifier la réponse
-    questions = get_quiz_questions(1)  # simplifié, on pourrait chercher la question exacte
-    correct = False
-    for q in questions:
-        if q["id"] == req.question_id:
-            correct = (q["correct"] == req.chosen)
-            break
+    question = get_quiz_question_by_id(req.question_id)
+    correct = bool(question) and question["correct"] == req.chosen
     save_quiz_result(req.phone, req.question_id, req.chosen, correct)
     return {"correct": correct}
 
@@ -274,12 +264,12 @@ def admin_hospitals(status: str = Query(None), limit: int = 20, offset: int = 0)
     return get_hospitals_paginated(limit, offset, status)
 
 @app.put("/api/admin/hospitals/{id}/approve", dependencies=[Depends(verify_admin)])
-def approve_hospital(id: int):
+def approve_hospital_route(id: int):
     approve_hospital(id)
     return {"status": "ok"}
 
 @app.put("/api/admin/hospitals/{id}/reject", dependencies=[Depends(verify_admin)])
-def reject_hospital(id: int):
+def reject_hospital_route(id: int):
     reject_hospital(id)
     return {"status": "ok"}
 
@@ -292,9 +282,7 @@ def alerts_geojson():
     return get_alerts_geojson()
 
 @app.get("/api/admin/export/patients", dependencies=[Depends(verify_admin)])
-def export_patients_csv(admin_key_query: str = Query(None)):
-    if admin_key_query != ADMIN_KEY:
-        raise HTTPException(status_code=403, detail="Clé admin invalide")
+def export_patients_csv():
     data = export_patients()
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=["phone","name","weeks_pregnant","lat","lon","created_at"])
@@ -304,9 +292,7 @@ def export_patients_csv(admin_key_query: str = Query(None)):
     return StreamingResponse(output, media_type="text/csv", headers={"Content-Disposition": "attachment; filename=patients.csv"})
 
 @app.get("/api/admin/export/alerts", dependencies=[Depends(verify_admin)])
-def export_alerts_csv(admin_key_query: str = Query(None)):
-    if admin_key_query != ADMIN_KEY:
-        raise HTTPException(status_code=403, detail="Clé admin invalide")
+def export_alerts_csv():
     data = export_alerts()
     output = io.StringIO()
     writer = csv.DictWriter(output, fieldnames=["id","phone","hospital_name","symptom","risk","lat","lon","sent_at"])
@@ -325,11 +311,6 @@ def admin_update_rules(payload: dict):
         raise HTTPException(status_code=400, detail="Le contenu doit être un objet JSON valide.")
     if not save_rules_to_db(payload):
         raise HTTPException(status_code=500, detail="Erreur lors de la sauvegarde en base.")
-    try:
-        with open("rules.json", "w", encoding="utf-8") as f:
-            json.dump(payload, f, indent=2, ensure_ascii=False)
-    except:
-        pass
     return {"status": "ok", "message": "Règles mises à jour avec succès."}
 
 @app.post("/api/admin/send-message", dependencies=[Depends(verify_admin)])
