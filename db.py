@@ -206,7 +206,7 @@ def get_health_records(phone: str):
 # ----- Appointments -----
 def get_appointments(phone: str):
     if not supabase: return []
-    res = supabase.table("appointments").select("*").eq("phone", phone).order("due_date", asc=True).execute()
+    res = supabase.table("appointments").select("*").eq("phone", phone).order("due_date").execute()
     return res.data if res.data else []
 
 def create_appointment(phone: str, due_date: str):
@@ -261,6 +261,11 @@ def get_quiz_questions(limit: int = 5):
     if not supabase: return []
     res = supabase.table("quiz_questions").select("*").limit(limit).execute()
     return res.data if res.data else []
+
+def get_quiz_question_by_id(question_id: int):
+    if not supabase: return None
+    res = supabase.table("quiz_questions").select("*").eq("id", question_id).execute()
+    return res.data[0] if res.data else None
 
 def insert_quiz_question(question: str, options: list, correct: int):
     if not supabase: return None
