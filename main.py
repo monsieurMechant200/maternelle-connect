@@ -23,9 +23,24 @@ from services.mistral_conversation import chat_with_mistral, normalize_risk
 from services.geoloc import get_nearest_hospitals
 from services.alerting import send_email_alert
 from services.auth import verify_admin
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
+import traceback
 
 app = FastAPI(title="Maternelle Connect Backend", version="3.0")
+
+# --- Gestionnaire d'erreurs global TEMPORAIRE pour diagnostiquer les 500 silencieux ---
+# Affiche le vrai message d'erreur (ex: erreur Supabase/PostgREST) dans la réponse JSON
+# au lieu d'un simple "Internal Server Error" sans détail.
+# À retirer (ou à restreindre) une fois les problèmes actuels résolus, pour ne pas
+# exposer de détails internes en production.
+@app.exception_handler(Exception)
+async def debug_exception_handler(request, exc):
+    tb = traceback.format_exc()
+    print(tb)  # visible dans les logs Render
+    return JSONResponse(
+        status_code=500,
+        content={"error": str(exc), "type": type(exc).__name__, "traceback": tb},
+    )
 
 # Modèles
 class PatientRegister(BaseModel):
