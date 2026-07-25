@@ -1,9 +1,19 @@
 import traceback
 import re
+import unicodedata
 from mistralai import Mistral
 from config import MISTRAL_API_KEY
 
 client = Mistral(api_key=MISTRAL_API_KEY)
+
+
+def normalize_risk(value: str) -> str:
+    """Retire les accents et met en minuscules : 'Élevé' -> 'eleve'.
+    Permet de comparer le niveau de risque de façon fiable partout dans le code,
+    que Mistral renvoie 'élevé' (accentué, comme demandé dans le prompt) ou 'eleve'."""
+    if not value:
+        return ""
+    return unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode().lower().strip()
 
 SYSTEM_PROMPT = """Tu es une sage-femme expérimentée et bienveillante qui dialogue avec une femme enceinte au Cameroun. 
 Ton rôle est de recueillir les symptômes, poser des questions complémentaires pour évaluer la gravité, puis fournir un conseil adapté.
@@ -38,8 +48,8 @@ def chat_with_mistral(phone: str, user_message: str, patient_name: str, history:
         risk = "faible"
         match = re.search(r'<risk>(.*?)</risk>', full_reply, re.IGNORECASE)
         if match:
-            risk = match.group(1).strip().lower()
-            if risk not in ("faible", "moyen", "élevé", "eleve"):
+            risk = normalize_risk(match.group(1))
+            if risk not in ("faible", "moyen", "eleve"):
                 risk = "faible"
 
         reply_clean = re.sub(r'<risk>.*?</risk>', '', full_reply, flags=re.DOTALL).strip()
